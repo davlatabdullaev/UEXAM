@@ -30,3 +30,6 @@ func Year(year int) error {
 }
 
 // Car ni yili yo'q 
+
+
+

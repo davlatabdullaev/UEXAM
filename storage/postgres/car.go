@@ -138,68 +138,23 @@ func (c carRepo) Delete(id string) error {
 	return nil
 }
 
-
-
 // TASK 1
 
-func (c carRepo) UpdateCarRoute(updateData models.UpdateCarRoute) error {
-	
-	car, err := c.Get(updateData.CarID)
-    if err != nil {
-		return err
-    }
-	
-    car.DriverData.CreatedAt= updateData.DepartureTime.String()
-    car.DriverData.FromCityID = updateData.FromCityID
-    car.DriverData.ToCityID = updateData.ToCityID
-	
-    err = c.updateDriverCities(car.DriverID, updateData.FromCityID, updateData.ToCityID)
-    if err != nil {
-		return err
-    }
-	
-    err = c.updateTripsDriverID(car.DriverID, updateData.FromCityID, updateData.ToCityID)
-    if err != nil {
-		return err
-    }
-	
-    err = c.updateCar(car)
-    if err != nil {
-		return err
-    }
-	
-    return nil
-}
+func (c carRepo) UpdateCarRoute(models.UpdateCarRoute) error {
+	route := models.UpdateCarRoute{}
 
-func (c carRepo) updateDriverCities(driverID, fromCityID, toCityID string) error {
-	query := "UPDATE drivers SET from_city_id = $1, to_city_id = $2 WHERE id = $3"
-    _, err := c.db.Exec(query, fromCityID, toCityID, driverID)
-    if err != nil {
-		return err
-    }
-    return nil
-}
+	query := `update drivers set from_city_id = $1, to_city_id = $2 from cars where cars.driver_id = driver_id and car.id  = $3`
 
-func (c carRepo) updateTripsDriverID(driverID, fromCityID, toCityID string) error {
-	query := "UPDATE trips SET driver_id = $1 WHERE from_city_id = $2 AND to_city_id = $3"
-    _, err := c.db.Exec(query, driverID, fromCityID, toCityID)
-    if err != nil {
-		return err
-    }
-    return nil
-}
+	_, err := c.db.Exec(query, route.FromCityID, route.ToCityID, route.CarID)
+	if err != nil {
+		fmt.Println("error while updating car route ", err.Error())
+		return nil
+	}
 
-func (c carRepo) updateCar(car models.Car) error {
-	query := "UPDATE cars SET departure_time = $1, from_city_id = $2, to_city_id = $3 WHERE id = $4"
-    _, err := c.db.Exec(query, car.DriverData.CreatedAt, car.DriverData.FromCityID, car.DriverData.ToCityID, car.ID)
-    if err != nil {
-		return err
-    }
-    return nil
+	return nil
 }
 
 // TASK 2
-
 
 func (c carRepo) UpdateCarStatus(updateCarStatus models.UpdateCarStatus) error {
 	query := `update cars set status = $1 where id = $2`
