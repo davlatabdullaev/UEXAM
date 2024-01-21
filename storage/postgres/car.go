@@ -35,19 +35,37 @@ func (c carRepo) Create(car models.CreateCar) (string, error) {
 
 func (c carRepo) Get(id string) (models.Car, error) {
 	car := models.Car{}
-
 	query := `
-	select id, model, brand, number, driver_id, driver_data, created_at 
-	from cars where id = $1
+		SELECT
+			c.id,
+			c.model,
+			c.brand,
+			c.number,
+			c.status,
+			d.full_name AS driver_full_name,
+			d.phone AS driver_phone,
+			d.from_city_id AS driver_from_city_id,
+			d.to_city_id AS driver_to_city_id,
+			d.created_at AS driver_created_at
+		FROM
+			cars c
+		JOIN
+			drivers d ON c.driver_id = d.id
+		WHERE
+			c.id = $1;
 	`
+
 	if err := c.db.QueryRow(query, id).Scan(
 		&car.ID,
 		&car.Model,
 		&car.Brand,
 		&car.Number,
-		&car.DriverID,
-		&car.DriverData,
-		&car.CreatedAt,
+		&car.Status,
+		&car.DriverData.FullName,
+		&car.DriverData.Phone,
+		&car.DriverData.FromCityID,
+		&car.DriverData.ToCityID,
+		&car.DriverData.CreatedAt,
 	); err != nil {
 		fmt.Println("error while scanning user ", err.Error())
 		return models.Car{}, err
