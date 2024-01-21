@@ -148,7 +148,7 @@ func (c carRepo) UpdateCarRoute(models.UpdateCarRoute) error {
 	_, err := c.db.Exec(query, route.FromCityID, route.ToCityID, route.CarID)
 	if err != nil {
 		fmt.Println("error while updating car route ", err.Error())
-		return nil
+		return err
 	}
 
 	return nil
